@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 
 set -e # we want to exit the script on error
-set -x # show all executed commands, for debugging only
+#set -x # show all executed commands, for debugging only
 
 
 usage()
@@ -44,6 +44,7 @@ OPTIONS:
            as the local mirroring is usually a lot quicker than writing to a remote system.
    -r      Optional: Backup host (hostname or ip or ssh alias)
    -s      Optional: Snapper configuration on the remote system to use for snapshots.
+   -e      Optional: rsync exclude file
    -c      Optional: absolute path to a configuration file with the required options.
            Following variables must be set:
              BACKUP_NAME
@@ -87,6 +88,9 @@ do
          s)
              SNAPPER_CONFIG=$OPTARG
              ;;
+         e)
+             RSYNC_EXCLUDE=$OPTARG
+             ;; 
          c)
              CONFIG_FILE=$OPTARG
              ;;
@@ -121,7 +125,7 @@ duration() {
   echo "duration: $(($diff / 3600))h, $(($diff % 3600 / 60))m, $(($diff % 60))s"
 }
 
-RSYNC_PARAMS="-rlptDv --delete --itemize-changes --progress"
+RSYNC_PARAMS="-rlptD -X --delete --exclude-from=$RSYNC_EXCLUDE"
 
 if [ -n "$MIRROR_DIR" ]
 then
@@ -141,14 +145,12 @@ SNAPPER_COMMAND=${SNAPPER_CONFIG+"snapper -c \"${SNAPPER_CONFIG?}\" create -t si
 
 create_mirror() {
   echo "creating local mirror:"
-  echo "rsync ${RSYNC_PARAMS} ${SRC_dir} ${MIRROR_DIR}"
   rsync ${RSYNC_PARAMS?} ${SOURCE_DIR?} ${MIRROR_DIR?}
   echo "local mirror completed."
 }
 
 create_backup() {
   echo "creating remote backup:"
-  echo "rsync ${RSYNC_PARAMS} ${BACKUP_TARGET_OPTIONS} ${BACKUP_SOURCE} ${TARGET_TARGET}"
   rsync ${RSYNC_PARAMS?} --rsync-path='rsync --fake-super' ${BACKUP_SOURCE?} ${BACKUP_TARGET?}
   echo "remote backup completed"
 }
