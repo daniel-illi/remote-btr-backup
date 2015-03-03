@@ -63,7 +63,7 @@ TARGET_HOST=
 TARGET_DIR=
 CONFIG_FILE=
 
-while getopts "hn:d:m:r:b:fs:c:" OPTION
+while getopts "hn:d:m:r:b:fs:c:e:" OPTION
 do
      case $OPTION in
          h)
