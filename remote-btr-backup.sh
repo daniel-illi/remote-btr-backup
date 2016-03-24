@@ -125,13 +125,13 @@ duration() {
   echo "duration: $(($diff / 3600))h, $(($diff % 3600 / 60))m, $(($diff % 60))s"
 }
 
-RSYNC_PARAMS="-rlptD -X --delete --exclude-from=$RSYNC_EXCLUDE"
+RSYNC_PARAMS="-rlptD -i -X --delete --exclude-from=$RSYNC_EXCLUDE"
 
 if [ -n "$MIRROR_DIR" ]
 then
   BACKUP_SOURCE=${MIRROR_DIR}/
 else
-  BACKUP_SOURCE=$SOURCE_DIR
+  BACKUP_SOURCE=${SOURCE_DIR}/
 fi
 
 if [ -n "$TARGET_HOST" ]
